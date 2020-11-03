@@ -47,6 +47,25 @@
 <p>和冒泡排序不同的是，选择排序每趟下来只会在遍历完所有元素后才会进行一次交换，而冒泡排序则是每趟遍历都有可能会进行多次交换，这也是选择排序略优于冒泡排序的地方（这里针对的是未优化前的冒泡排序，优化后的冒泡排序会检测如果某趟遍历没有发生元素交换，就提前结束排序，所以在某些情况下会优于选择排序）。</p>
 <h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">selectionSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span></span><br><span class="line">    <span class="comment">//i表示第几趟排序</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until nums.lastIndex) &#123;</span><br><span class="line">        <span class="keyword">var</span> minIndex = i<span class="comment">//minIndex表示每趟排序最小值的索引</span></span><br><span class="line">        <span class="comment">//j表示这趟排序遍历的索引位置</span></span><br><span class="line">        <span class="keyword">for</span> (j <span class="keyword">in</span> i + <span class="number">1</span>..nums.lastIndex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &lt; nums[minIndex]) &#123;</span><br><span class="line">                minIndex = j</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        swap(nums, i, minIndex)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>时间复杂度：O(n^2)</p>
+<p>空间复杂度：O(1)</p>
+]]></content>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SortAlgosKt(3)-插入排序</title>
+    <url>/2020/11/03/sort-03/</url>
+    <content><![CDATA[<p>这期来讲讲插入排序。</p>
+<a id="more"></a>
+
+<h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>插入排序的基本思想，就是<strong>对所有元素进行遍历，每一次把当前遍历的元素插入到前面已经排序好的有序队列的相应位置上</strong>。这个过程就很像打扑克时候的理牌，每抽一张牌就把那张牌给放到手牌里的对应位置，<del>如果你喜欢打牌应该很好理解</del>（其实在下并不怎么打牌，只是《算法导论》里举得的这个例子给俺留下了很深刻的印象）。</p>
+<h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><p>实现上使用双循环，外层对所有元素进行遍历（不包括第一个元素，因为第一个元素已经有序）,内层从当前元素往前遍历前面的有序队列，通过每次和前面的一个元素比较交换，查找合适的插入位置。</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">insertionSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span></span><br><span class="line">    <span class="comment">//i表示第几趟排序</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>..nums.lastIndex) &#123;</span><br><span class="line">        <span class="comment">//j表示当前元素每次和有序队列的元素进行比较后的索引</span></span><br><span class="line">        <span class="keyword">for</span> (j <span class="keyword">in</span> i downTo <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &lt; nums[j - <span class="number">1</span>]) &#123;</span><br><span class="line">                swap(nums, j, j - <span class="number">1</span>)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>时间复杂度：O(n^2)</p>
+<p>空间复杂度：O(1)</p>
 ]]></content>
       <tags>
         <tag>算法</tag>
@@ -93,7 +112,7 @@
       </tags>
   </entry>
   <entry>
-    <title>基于Kotlin的Spring Boot项目搭建指北(二)</title>
+    <title>(已咕)基于Kotlin的Spring Boot项目搭建指北(二)</title>
     <url>/2019/08/13/springboot-kt-mybatis/</url>
     <content><![CDATA[<h2 id="瞎扯两句"><a href="#瞎扯两句" class="headerlink" title="瞎扯两句"></a>瞎扯两句</h2><p>哈喽哈喽哈喽哈喽大家好~ <del>这里是刺猬</del>(误)，这里其实是 <code>Kotlin+Springboot</code> 系列教程的第二篇——整合 <code>mybatis</code>，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。</p>
 <a id="more"></a>
