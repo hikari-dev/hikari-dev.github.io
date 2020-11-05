@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>SortAlgosKt(1)-开个新坑吧，吧卟吧卟之冒泡排序</title>
+    <title>SortAlgosKt(1) - 开个新坑吧，吧卟吧卟之冒泡排序</title>
     <url>/2020/10/30/sort-01/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>作为一个天天摸鱼的打工人，最近接触到一些新的知识后，愈发认识到自己的菜了。前几天听别人讲到归并排序算法，一时没想起来是咋个思路来着（<del>此处脸上泛红</del>），跑去查了下才想起来。于是乎想开个新坑，介绍下各排序算法的思路并用 <code>kotlin</code> 一一实现这些排序算法，也借此机会<del>巩固</del>(学习)以前学的各种排序算法。(<del>害，其实除了常用的排序算法，其它的在下都忘得差不多了……</del>) </p>
 <p>为啥第一篇选择冒泡排序呢，当然是因为冒泡最出名也最简单啦。</p>
@@ -32,7 +32,7 @@
       </tags>
   </entry>
   <entry>
-    <title>SortAlgosKt(2)-选择排序</title>
+    <title>SortAlgosKt(2) - 选择排序</title>
     <url>/2020/11/01/sort-02/</url>
     <content><![CDATA[<p>又是一个颓废的周末，忙着看比赛没怎么学习，罪过罪过。一觉醒来，才知道双11今天凌晨就提前开始了，大家都像打仗一样的奔向战场，而我还在沉浸在香甜的睡梦中（<del>血亏</del>）。不过想想，不买立省100%，也就没那么亏了嘿嘿。不闲扯了，还是来讲讲选择排序吧。</p>
 <a id="more"></a>
@@ -55,7 +55,7 @@
       </tags>
   </entry>
   <entry>
-    <title>SortAlgosKt(3)-插入排序</title>
+    <title>SortAlgosKt(3) - 插入排序</title>
     <url>/2020/11/03/sort-03/</url>
     <content><![CDATA[<p>这期来讲讲插入排序。</p>
 <a id="more"></a>
@@ -66,6 +66,25 @@
 
 <p>时间复杂度：O(n^2)</p>
 <p>空间复杂度：O(1)</p>
+]]></content>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SortAlgosKt(4) - 归并排序</title>
+    <url>/2020/11/05/sort-04/</url>
+    <content><![CDATA[<p>进入正题前，分享下最近看剧学到的一句不错的格言：</p>
+<blockquote>
+<p>The unhappiest man is one trapped in past memory or future hope,incapable of living in the present.</p>
+</blockquote>
+<h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>归并排序是分治法的一个经典应用：将原问题分解成规模较小的子问题，递归求解这些子问题，然后合并这些子问题来建立原问题的解。</p>
+<p>直接上图吧。</p>
+<p><img src="1.png"></p>
+<p>在对上面这个数组的排序过程中，先将数组拆到长度最小的有序数组(即只包含一个元素)，然后层层归并，每层待合并的有序序列的长度不断增加，直到最后把长度为原数组一半的两个有序序列合并成最终的结果。</p>
+<p>还有个关键问题是如何将两个有序序列合并成一个大的有序序列呢？可以使用双指针法，分别指向两个有序序列的开头。下面的 merge 方法直接给出了实现。</p>
+<h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">mergeSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span> nums</span><br><span class="line">    <span class="keyword">val</span> mid = nums.size / <span class="number">2</span></span><br><span class="line">    <span class="keyword">val</span> leftArr = nums.copyOfRange(<span class="number">0</span>, mid)</span><br><span class="line">    <span class="keyword">val</span> rightArr = nums.copyOfRange(mid, nums.lastIndex + <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> merge(mergeSort(leftArr), mergeSort(rightArr))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">merge</span><span class="params">(nums1: <span class="type">IntArray</span>, nums2: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">val</span> ans = IntArray(nums1.size + nums2.size)</span><br><span class="line">    <span class="comment">//《算法导论》里使用的是哨兵法，给每个数组的最后加上大小为正无穷的哨兵元素，可以省去每次检查是否有数组遍历到头了。</span></span><br><span class="line">    <span class="comment">// 此处使用的双指针法，也具有此效果</span></span><br><span class="line">    <span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">var</span> j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> (i &lt;= nums1.lastIndex &amp;&amp; j &lt;= nums2.lastIndex) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums1[i] &lt;= nums2[j]) &#123;</span><br><span class="line">            ans[i + j] = nums1[i]</span><br><span class="line">            i++</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ans[i + j] = nums2[j]</span><br><span class="line">            j++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (i &lt;= nums1.lastIndex) &#123;</span><br><span class="line">        ans[i + j] = nums1[i]</span><br><span class="line">        i++</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (j &lt;= nums2.lastIndex) &#123;</span><br><span class="line">        ans[i + j] = nums2[j]</span><br><span class="line">        j++</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>算法</tag>
