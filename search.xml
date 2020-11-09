@@ -203,10 +203,10 @@
       </tags>
   </entry>
   <entry>
-    <title>Ktor - CIO源码分析</title>
+    <title>Ktor的CIO Engine源码分析</title>
     <url>/2020/11/10/ktor-cio/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>犹记得去年写了两篇使用 <code>kotlin</code> 开发 <code>springboot</code> 项目的介绍，后来咕了（<del>逃</del>。</p>
-<p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人小型项目中，我更喜欢使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
+<p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人项目中，我更倾向于使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
 <h2 id="Let’s-Roll"><a href="#Let’s-Roll" class="headerlink" title="Let’s Roll"></a>Let’s Roll</h2><p>占个坑，等 ktor 这几天 bump 版本后更新。</p>
 ]]></content>
       <tags>
