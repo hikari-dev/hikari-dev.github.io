@@ -103,9 +103,16 @@
 <li>对 <code>pivot</code> 左右两边的数组重复步骤1和步骤2，直到只剩下一个元素为止。</li>
 </ol>
 <p>关键在于第二步这个分区（<code>partition</code>）的过程如何实现。可以对当前数组进行遍历，并用一个变量标记分割点的位置，分割点表示左边的数都比 <code>pivot</code> 小，右边的都比 <code>pivot</code> 大，遇到比 <code>pivot</code> 小的数就把标记位置右移一位，然后交换标记位置的元素和当前遍历到的元素。遍历结束后，再把 <code>pivot</code> 元素和标记位置的元素进行交换，这次 <code>partition</code> 就算结束了。</p>
-<p><code>partition</code> 的过程可以参考下面这个《算法导论》里的图进行理解，只不过这个图是把数组的最后一个数作为 <code>pivot</code> 元素，原理是一样的。我个人更喜欢直接用第一个元素作为 <code>pivot</code> ，后面实现代码里的 <code>partition</code> 方法也是按照第一个元素来实现的。</p>
+<p><code>partition</code> 的过程可以参考下面这个《算法导论》里的图进行理解，只不过这个图是把数组的最后一个数作为 <code>pivot</code> 元素，原理是一样的。我更喜欢直接用第一个元素作为 <code>pivot</code> ，后面实现代码里的 <code>partition</code> 方法也是按照第一个元素来实现的。</p>
 <p><img src="1.png"></p>
 <h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">quickSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span></span><br><span class="line">    quickSortImpl(nums, <span class="number">0</span>, nums.lastIndex)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">quickSortImpl</span><span class="params">(nums: <span class="type">IntArray</span>, l: <span class="type">Int</span>, r: <span class="type">Int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (l &lt; r) &#123;</span><br><span class="line">        <span class="keyword">val</span> partition = partition(nums, l, r)</span><br><span class="line">        quickSortImpl(nums, l, partition)</span><br><span class="line">        quickSortImpl(nums, partition + <span class="number">1</span>, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">partition</span><span class="params">(nums: <span class="type">IntArray</span>, l: <span class="type">Int</span>, r: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> pivot = nums[l]</span><br><span class="line">    <span class="keyword">var</span> i = l</span><br><span class="line">    <span class="keyword">for</span> (j <span class="keyword">in</span> l..r) &#123;</span><br><span class="line">        <span class="keyword">if</span> (pivot &gt; nums[j]) &#123;</span><br><span class="line">            i++</span><br><span class="line">            swap(nums, i, j)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    swap(nums, l, i)</span><br><span class="line">    <span class="keyword">return</span> i</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="拓展-随机快速排序"><a href="#拓展-随机快速排序" class="headerlink" title="拓展 - 随机快速排序"></a>拓展 - 随机快速排序</h2><p>有这么一种情况，待排序数组如果已经有序，那么上面的快速排序方法就会显得效率很低。因为每次把第一个元素作为 <code>pivot</code> 进行 <code>partition</code> 后，总有一个序列是不含任何元素的，此时时间复杂度到达了O(n^2)。这种情况下我们可以使用随机快速排序，也就是每次进行 <code>partition</code> 操作的时候，随机选一个元素作为 <code>pivot</code> ，这样可以实现无论输入数组是否有序，排序时的分区总是相对均衡的。</p>
+<p>新增加一个 <code>randPartition</code> 方法用来实现随机快排,</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">randPartition</span><span class="params">(nums: <span class="type">IntArray</span>, l: <span class="type">Int</span>, r: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> randIndex = Random.nextInt(l, r + <span class="number">1</span>)</span><br><span class="line">    swap(nums, randIndex, l)</span><br><span class="line">    <span class="keyword">return</span> partition(nums, l, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后修改原来调用 <code>partition</code> 方法为调用 <code>randPartition</code> 方法。</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">quickSortImpl</span><span class="params">(nums: <span class="type">IntArray</span>, l: <span class="type">Int</span>, r: <span class="type">Int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (l &lt; r) &#123;</span><br><span class="line">        <span class="keyword">val</span> partition = randPartition(nums, l, r)</span><br><span class="line">        quickSortImpl(nums, l, partition)</span><br><span class="line">        quickSortImpl(nums, partition + <span class="number">1</span>, r)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
@@ -193,6 +200,17 @@
         <tag>Springboot</tag>
         <tag>Kotlin</tag>
         <tag>Mybatis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Ktor - CIO源码分析</title>
+    <url>/2020/11/10/ktor-cio/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>犹记得去年写了两篇使用 <code>kotlin</code> 开发 <code>springboot</code> 项目的介绍，后来咕了（<del>逃</del>。</p>
+<p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人小型项目中，我更喜欢使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
+<h2 id="Let’s-Roll"><a href="#Let’s-Roll" class="headerlink" title="Let’s Roll"></a>Let’s Roll</h2><p>占个坑，等 ktor 这几天 bump 版本后更新。</p>
+]]></content>
+      <tags>
+        <tag>源码分析</tag>
       </tags>
   </entry>
 </search>
