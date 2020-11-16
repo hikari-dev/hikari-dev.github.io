@@ -217,8 +217,11 @@
   </entry>
   <entry>
     <title>SortAlgosKt(6) - 计数排序</title>
-    <url>/2020/11/06/sort-06/</url>
-    <content><![CDATA[<p>鸽了几天，但是 Better late than never ,俺又回来了，妹想到吧。<br>很喜欢 Cas 说过的一句话。</p>
+    <url>/2020/11/16/sort-06/</url>
+    <content><![CDATA[<p>鸽了几天，但是 Better late than never ,俺又回来了，妹想到吧。<br>追SPN到了最新的一集，很喜欢 Cas 说的一句话。</p>
+<blockquote>
+<p>Happiness isn’t in the having.It’s in just being.It’s in just saying it.</p>
+</blockquote>
 <a id="more"></a>
 
 <h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>前面几篇讲的所有排序算法都是比较算法（在排序的最终结果中，各元素的次序依赖于它们之间的比较）。而计数排序是非比较排序，它的核心思想就是<strong>统计序列中每一种元素出现的次数，由此计算出对于每一个元素，有多少个元素比当前元素小，即可得到当前元素应该排序后应该放置的位置</strong>。具体的实现流程可以看下面的代码注释。</p>
