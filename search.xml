@@ -207,10 +207,26 @@
     <url>/2020/11/10/ktor-cio/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>犹记得去年写了两篇使用 <code>kotlin</code> 开发 <code>springboot</code> 项目的介绍，后来咕了（<del>逃</del>。</p>
 <p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人项目中，我更倾向于使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
+<a id="more"></a>
+
 <h2 id="Let’s-Roll"><a href="#Let’s-Roll" class="headerlink" title="Let’s Roll"></a>Let’s Roll</h2><p>占个坑，等 ktor 这几天 bump 版本后更新。</p>
 ]]></content>
       <tags>
         <tag>源码分析</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SortAlgosKt(6) - 计数排序</title>
+    <url>/2020/11/06/sort-06/</url>
+    <content><![CDATA[<p>鸽了几天，但是 Better late than never ,俺又回来了，妹想到吧。<br>很喜欢 Cas 说过的一句话。</p>
+<a id="more"></a>
+
+<h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>前面几篇讲的所有排序算法都是比较算法（在排序的最终结果中，各元素的次序依赖于它们之间的比较）。而计数排序是非比较排序，它的核心思想就是<strong>统计序列中每一种元素出现的次数，由此计算出对于每一个元素，有多少个元素比当前元素小，即可得到当前元素应该排序后应该放置的位置</strong>。具体的实现流程可以看下面的代码注释。</p>
+<h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countingSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span> nums</span><br><span class="line">    <span class="comment">//获得数组最大值</span></span><br><span class="line">    <span class="keyword">var</span> max = <span class="built_in">Int</span>.MIN_VALUE</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        max = Math.max(num, max)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//分别统计(0..max)在数组中出现的次数</span></span><br><span class="line">    <span class="keyword">val</span> arr = IntArray(max + <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        arr[num] += <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//通过累加，计算对于每一个元素，数组中有多少个元素是小于或者等于该元素的</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>..arr.lastIndex) &#123;</span><br><span class="line">        arr[i] += arr[i - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">val</span> ans = IntArray(nums.size)</span><br><span class="line">    <span class="comment">//倒序遍历数组，根据上面得到的arr，把每个元素放到相应的位置</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> nums.lastIndex downTo <span class="number">0</span>) &#123;</span><br><span class="line">        ans[arr[nums[i]] - <span class="number">1</span>] = nums[i]</span><br><span class="line">        arr[nums[i]] -= <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>算法</tag>
       </tags>
   </entry>
 </search>
