@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Ktor的CIO Engine源码分析</title>
+    <url>/2020/11/10/ktor-cio/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>犹记得去年写了两篇使用 <code>kotlin</code> 开发 <code>springboot</code> 项目的介绍，后来咕了（<del>逃</del>。</p>
+<p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人项目中，我更倾向于使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
+<a id="more"></a>
+
+<h2 id="Let’s-Roll"><a href="#Let’s-Roll" class="headerlink" title="Let’s Roll"></a>Let’s Roll</h2><p>占个坑，等 ktor 这几天 bump 版本后更新。</p>
+]]></content>
+      <tags>
+        <tag>源码分析</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Ktor上手篇</title>
+    <url>/2020/11/18/ktor-in-practice/</url>
+    <content><![CDATA[<p>在 <code>github</code> 上看到了一个不错的库—— <a href="https://github.com/laosepi/setu">setu</a>，寻思正好可以用这个库里面的数据搭配 <code>ktor</code> 做一个随机的色图 api，帮助上手并了解 <code>ktor</code>。</p>
+<h2 id="一、准备工作"><a href="#一、准备工作" class="headerlink" title="一、准备工作"></a>一、准备工作</h2><p>首先，我们要从<a href="https://github.com/laosepi/setu/tree/master/db">数据源</a>下载最近新的 <code>json</code> 文件，并将里面的数据导入到数据库中。</p>
+<p>由于这个库用来保存色图数据的文件并不符合 <code>json</code> 格式的规范，所以不能直接用工具将整个文件直接导入到数据库中。这里我写了个简单的工具用来解析这个文件并且将文件数据导入到目的数据库，可以到<a href="https://github.com/hikari-dev/setu-import-helper">这里</a>查看具体源码。</p>
+<h2 id="二、开始"><a href="#二、开始" class="headerlink" title="二、开始"></a>二、开始</h2><p>使用 <code>idea</code> 的 <code>ktor</code> 插件可以很方便地创建一个 <code>ktor</code> 项目。来看看 <code>ktor</code> 插件自动给我们生成的代码都是甚摸意思。</p>
+<p>在 <code>build.gradle</code> 文件里，<code>ktor</code> 插件在不勾选其它功能的情况下自动帮我们导入了以下这些依赖，</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line">implementation(<span class="string">&quot;io.ktor:ktor-server-cio:<span class="variable">$ktor_version</span>&quot;</span>)</span><br><span class="line">implementation(<span class="string">&quot;ch.qos.logback:logback-classic:<span class="variable">$logback_version</span>&quot;</span>)</span><br><span class="line">implementation(<span class="string">&quot;io.ktor:ktor-server-core:<span class="variable">$ktor_version</span>&quot;</span>)</span><br><span class="line">testImplementation(<span class="string">&quot;io.ktor:ktor-server-tests:<span class="variable">$ktor_version</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后在 <code>application.kt</code> 文件里，</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span>: <span class="built_in">Unit</span> = io.ktor.server.cio.EngineMain.main(args)</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>CIO Engine</code> 的 <code>main</code> 方法来启动程序。这样，一个最简单的 <code>ktor application</code> 就搭起来了。</p>
+<p>当然，我们可以通过 <code>install</code>  方法给这个应用安装一些常用的 <code>feature</code> ，</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="comment">//添加记录日志功能</span></span><br><span class="line">install(CallLogging) &#123;</span><br><span class="line">    level = Level.DEBUG</span><br><span class="line">    filter &#123; call -&gt; call.request.path().startsWith(<span class="string">&quot;/&quot;</span>) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加默认header</span></span><br><span class="line">install(DefaultHeaders) &#123;</span><br><span class="line">    header(<span class="string">&quot;X-Engine&quot;</span>, <span class="string">&quot;NM\$L&quot;</span>) <span class="comment">// will send this header with each response</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//添加默认json解析器</span></span><br><span class="line">install(ContentNegotiation) &#123;</span><br><span class="line">    gson &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后添加路由，</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line">routing &#123;</span><br><span class="line">    route(<span class="string">&quot;/api&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">get</span>(<span class="string">&quot;setu&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">val</span> setu = fetchSeTuFromDatabase()</span><br><span class="line">            <span class="keyword">if</span> (setu != <span class="literal">null</span>) &#123;</span><br><span class="line">                call.respond(setu)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                call.respondText(<span class="string">&quot;Something went wrong.&quot;</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">val</span> count = <span class="number">10000</span><span class="comment">//replace with your count here</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">fetchSeTuFromDatabase</span><span class="params">()</span></span>: SeTu? &#123;</span><br><span class="line">    <span class="keyword">var</span> resultRow: ResultRow? = <span class="literal">null</span></span><br><span class="line">    transaction &#123;</span><br><span class="line">        <span class="keyword">val</span> randomId = Random().nextInt(count) + <span class="number">1</span></span><br><span class="line">        resultRow = SeTuTable.select &#123; SeTuTable.id eq randomId &#125;.firstOrNull()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">if</span> (resultRow == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="literal">null</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        SeTu().saveBy(resultRow!!)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，一个可以获取随机色图的 <code>api</code> 就完成了！</p>
+<h2 id="测试一下"><a href="#测试一下" class="headerlink" title="测试一下"></a>测试一下</h2><p>打开浏览器，访问 <code>localhost:8080/api/setu</code> ,看能否正常输出 <code>json</code> 格式的 <code>response</code> 即可。</p>
+]]></content>
+  </entry>
+  <entry>
     <title>SortAlgosKt(1) - 开个新坑吧，吧卟吧卟之冒泡排序</title>
     <url>/2020/10/30/sort-01/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>作为一个天天摸鱼的打工人，最近接触到一些新的知识后，愈发认识到自己的菜了。前几天听别人讲到归并排序算法，一时没想起来是咋个思路来着（<del>此处脸上泛红</del>），跑去查了下才想起来。于是乎想开个新坑，介绍下各排序算法的思路并用 <code>kotlin</code> 一一实现这些排序算法，也借此机会<del>巩固</del>(学习)以前学的各种排序算法。(<del>害，其实除了常用的排序算法，其它的在下都忘得差不多了……</del>) </p>
@@ -120,6 +157,23 @@
       </tags>
   </entry>
   <entry>
+    <title>SortAlgosKt(6) - 计数排序</title>
+    <url>/2020/11/16/sort-06/</url>
+    <content><![CDATA[<p>鸽了几天，但是 Better late than never ,俺又回来了，妹想到吧。<br>追 SPN 追到了最新的一集，很喜欢 Cas 说的一句话：</p>
+<blockquote>
+<p>Happiness isn’t in the having.It’s in just being.It’s in just saying it.</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>前面几篇讲的所有排序算法都是比较算法（在排序的最终结果中，各元素的次序依赖于它们之间的比较）。而计数排序是非比较排序，它的核心思想就是<strong>统计序列中每一种元素出现的次数，由此计算出对于每一个元素，有多少个元素比当前元素小，即可得到当前元素应该排序后应该放置的位置</strong>。具体的实现流程可以看下面的代码注释。</p>
+<h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countingSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span> nums</span><br><span class="line">    <span class="comment">//获得数组最大值</span></span><br><span class="line">    <span class="keyword">var</span> max = <span class="built_in">Int</span>.MIN_VALUE</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        max = Math.max(num, max)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//分别统计(0..max)在数组中出现的次数</span></span><br><span class="line">    <span class="keyword">val</span> arr = IntArray(max + <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        arr[num] += <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//通过累加，计算对于每一个元素，数组中有多少个元素是小于或者等于该元素的</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>..arr.lastIndex) &#123;</span><br><span class="line">        arr[i] += arr[i - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">val</span> ans = IntArray(nums.size)</span><br><span class="line">    <span class="comment">//倒序遍历数组，根据上面得到的arr，把每个元素放到相应的位置</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> nums.lastIndex downTo <span class="number">0</span>) &#123;</span><br><span class="line">        ans[arr[nums[i]] - <span class="number">1</span>] = nums[i]</span><br><span class="line">        arr[nums[i]] -= <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>基于Kotlin的Spring Boot项目搭建指北(一)</title>
     <url>/2019/08/02/springboot-kt-101/</url>
     <content><![CDATA[<h2 id="为什么写这篇文章"><a href="#为什么写这篇文章" class="headerlink" title="为什么写这篇文章"></a>为什么写这篇文章</h2><p><code>Spirng Boot</code> 应该算是当下最流行的 j2ee 开发框架了，但目前大多数都是 <code>java</code> 版本的。上手 <code>kotlin</code> 时间虽然不久，但我确实明显感觉到 <code>kotlin</code> 这门语言带来的方便性，毕竟 jetbrains 那群人开发 <code>kotlin</code> 的时候是更多的是从开发者的角度出发，而 <code>java</code> 感觉有更多的学术研究方面的考虑和历史遗留的问题，所以用起来有时候并不是那么顺手。且不论 <code>kotlin</code> 是不是 “a better java”，单独作为一门编程语言来说，花个一天时间学习一下体验下还是不错的，况且还有 “100% interoperable with java” 呢，不会影响以前的代码hahaha~（等等，这篇文章好像不是来推销 <code>kotlin</code> 的啊）</p>
@@ -200,36 +254,6 @@
         <tag>Springboot</tag>
         <tag>Kotlin</tag>
         <tag>Mybatis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Ktor的CIO Engine源码分析</title>
-    <url>/2020/11/10/ktor-cio/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>犹记得去年写了两篇使用 <code>kotlin</code> 开发 <code>springboot</code> 项目的介绍，后来咕了（<del>逃</del>。</p>
-<p>对于大型项目来说，目前 <code>springboot</code> 依然是不二首选（毕竟 <code>Spring Cloud</code> 的那一套生态还是很方便的），但是在个人项目中，我更倾向于使用 <a href="https://github.com/ktorio/ktor">Ktor</a> 。</p>
-<a id="more"></a>
-
-<h2 id="Let’s-Roll"><a href="#Let’s-Roll" class="headerlink" title="Let’s Roll"></a>Let’s Roll</h2><p>占个坑，等 ktor 这几天 bump 版本后更新。</p>
-]]></content>
-      <tags>
-        <tag>源码分析</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SortAlgosKt(6) - 计数排序</title>
-    <url>/2020/11/16/sort-06/</url>
-    <content><![CDATA[<p>鸽了几天，但是 Better late than never ,俺又回来了，妹想到吧。<br>追SPN到了最新的一集，很喜欢 Cas 说的一句话。</p>
-<blockquote>
-<p>Happiness isn’t in the having.It’s in just being.It’s in just saying it.</p>
-</blockquote>
-<a id="more"></a>
-
-<h2 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h2><p>前面几篇讲的所有排序算法都是比较算法（在排序的最终结果中，各元素的次序依赖于它们之间的比较）。而计数排序是非比较排序，它的核心思想就是<strong>统计序列中每一种元素出现的次数，由此计算出对于每一个元素，有多少个元素比当前元素小，即可得到当前元素应该排序后应该放置的位置</strong>。具体的实现流程可以看下面的代码注释。</p>
-<h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">countingSort</span><span class="params">(nums: <span class="type">IntArray</span>)</span></span>: IntArray &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.size &lt; <span class="number">2</span>) <span class="keyword">return</span> nums</span><br><span class="line">    <span class="comment">//获得数组最大值</span></span><br><span class="line">    <span class="keyword">var</span> max = <span class="built_in">Int</span>.MIN_VALUE</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        max = Math.max(num, max)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//分别统计(0..max)在数组中出现的次数</span></span><br><span class="line">    <span class="keyword">val</span> arr = IntArray(max + <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> (num <span class="keyword">in</span> nums) &#123;</span><br><span class="line">        arr[num] += <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//通过累加，计算对于每一个元素，数组中有多少个元素是小于或者等于该元素的</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">1</span>..arr.lastIndex) &#123;</span><br><span class="line">        arr[i] += arr[i - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">val</span> ans = IntArray(nums.size)</span><br><span class="line">    <span class="comment">//倒序遍历数组，根据上面得到的arr，把每个元素放到相应的位置</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> nums.lastIndex downTo <span class="number">0</span>) &#123;</span><br><span class="line">        ans[arr[nums[i]] - <span class="number">1</span>] = nums[i]</span><br><span class="line">        arr[nums[i]] -= <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>算法</tag>
       </tags>
   </entry>
 </search>
