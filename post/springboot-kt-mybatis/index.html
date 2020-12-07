@@ -1,0 +1,169 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>(已咕)基于Kotlin的Spring Boot项目搭建指北(二) - hikari的博客</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hikari"><meta name=description content="瞎扯两句 哈喽哈喽哈喽哈喽大家好~ 这里是刺猬(误)，这里其实是 Kotlin+Springboot 系列教程的第二篇——整合 mybatis，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。"><meta name=generator content="Hugo 0.69.2 with theme even"><link rel=canonical href=http://localhost:1313/post/springboot-kt-mybatis/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><script async src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js></script><link href=/sass/main.min.c7bc1becf36bcf6a9ebd25d2947e43a2eb745ddb0c9a32b43126fd7fa460c351.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="(已咕)基于Kotlin的Spring Boot项目搭建指北(二)"><meta property="og:description" content="瞎扯两句
+哈喽哈喽哈喽哈喽大家好~ 这里是刺猬(误)，这里其实是 Kotlin+Springboot 系列教程的第二篇——整合 mybatis，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。"><meta property="og:type" content="article"><meta property="og:url" content="http://localhost:1313/post/springboot-kt-mybatis/"><meta property="article:published_time" content="2019-08-13T18:42:12+00:00"><meta property="article:modified_time" content="2019-08-13T18:42:12+00:00"><meta itemprop=name content="(已咕)基于Kotlin的Spring Boot项目搭建指北(二)"><meta itemprop=description content="瞎扯两句
+哈喽哈喽哈喽哈喽大家好~ 这里是刺猬(误)，这里其实是 Kotlin+Springboot 系列教程的第二篇——整合 mybatis，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。"><meta itemprop=datePublished content="2019-08-13T18:42:12+00:00"><meta itemprop=dateModified content="2019-08-13T18:42:12+00:00"><meta itemprop=wordCount content="2031"><meta itemprop=keywords content="Tutorial,Springboot,Kotlin,Mybatis,"><meta name=twitter:card content="summary"><meta name=twitter:title content="(已咕)基于Kotlin的Spring Boot项目搭建指北(二)"><meta name=twitter:description content="瞎扯两句
+哈喽哈喽哈喽哈喽大家好~ 这里是刺猬(误)，这里其实是 Kotlin+Springboot 系列教程的第二篇——整合 mybatis，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hikari的博客</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hikari的博客</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>(已咕)基于Kotlin的Spring Boot项目搭建指北(二)</h1><div class=post-meta><span class=post-time>2019-08-13</span><div class=post-category><a href=/categories/%E5%90%8E%E7%AB%AF/>后端</a></div><span id=busuanzi_container_page_pv class=more-meta><span id=busuanzi_value_page_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次阅读</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#瞎扯两句>瞎扯两句</a></li><li><a href=#正文来啦>正文来啦</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=瞎扯两句>瞎扯两句</h2><p>哈喽哈喽哈喽哈喽大家好~ <del>这里是刺猬</del>(误)，这里其实是 <code>Kotlin+Springboot</code> 系列教程的第二篇——整合 <code>mybatis</code>，只是最近在看《乐队的夏天》，对刺猬这个乐队有点喜欢嘿嘿。</p><h2 id=正文来啦>正文来啦</h2><p>首先，和上篇文章所写步骤一样，在 idea 用 <code>File → New → project</code> 创建新的项目，唯一区别的地方在于选择需要的 dependencies 的时候要把下面的 <code>MySQL Driver</code> 和 <code>MyBatis Framwork</code> 勾上。</p><p><img src=1.png alt></p><p>由于要使用 Druid 作为连接池的实现，我们还需要导入相应的依赖。打开 <code>pom.xml</code>，在里面添加如下内容:</p><p><img src=2.png alt></p><p>之后创建此次需要连接的数据库，</p><p><img src=3.png alt></p><p>然后简单创建测试用的 <code>user</code> 表，然后随便往里面插几条数据。</p><p><img src=4.png alt></p><p>接着，打开我们项目的配置文件，这里我用的是 <code>application.yml</code> 作为项目配置文件，参考配置如下：</p><blockquote><p>由于我用的数据库环境是 <code>mysql-8.0.17</code>，所以 jdbc 的 driver 是带 cj 的。如果你用的是5.x.x的版本，driver-class-name 应是 <code>com.mysql.jdbc.Driver</code>。</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-yaml data-lang=yaml><span class=c>#jdbc配置</span><span class=w>
+</span><span class=w></span><span class=k>spring</span><span class=p>:</span><span class=w>
+</span><span class=w>  </span><span class=k>datasource</span><span class=p>:</span><span class=w>
+</span><span class=w>    </span><span class=k>url</span><span class=p>:</span><span class=w> </span>jdbc<span class=p>:</span>mysql<span class=p>:</span>//ip<span class=p>:</span>port/dbName<span class=p>?</span>serverTimezone=GMT%2B8<span class=w>
+</span><span class=w>    </span><span class=k>username</span><span class=p>:</span><span class=w> </span>your<span class=w> </span>username<span class=w>
+</span><span class=w>    </span><span class=k>password</span><span class=p>:</span><span class=w> </span>your<span class=w> </span>password<span class=w>
+</span><span class=w>    </span><span class=k>driver-class-name</span><span class=p>:</span><span class=w> </span>com.mysql.cj.jdbc.Driver<span class=w>
+</span><span class=w>    </span><span class=k>type</span><span class=p>:</span><span class=w> </span>com.alibaba.druid.pool.DruidDataSource<span class=w>
+</span><span class=w>
+</span><span class=w>    </span><span class=c>#连接池的设置</span><span class=w>
+</span><span class=w>    </span><span class=k>druid</span><span class=p>:</span><span class=w>
+</span><span class=w>      </span><span class=c>#初始化时建立物理连接的个数</span><span class=w>
+</span><span class=w>      </span><span class=k>initial-size</span><span class=p>:</span><span class=w> </span><span class=m>5</span><span class=w>
+</span><span class=w>      </span><span class=c>#最小连接池数量</span><span class=w>
+</span><span class=w>      </span><span class=k>min-idle</span><span class=p>:</span><span class=w> </span><span class=m>5</span><span class=w>
+</span><span class=w>      </span><span class=c>#最大连接池数量 maxIdle已经不再使用</span><span class=w>
+</span><span class=w>      </span><span class=k>max-active</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=w>
+</span><span class=w>      </span><span class=c>#获取连接时最大等待时间，单位毫秒</span><span class=w>
+</span><span class=w>      </span><span class=k>max-wait</span><span class=p>:</span><span class=w> </span><span class=m>60000</span><span class=w>
+</span><span class=w>      </span><span class=c>#申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。</span><span class=w>
+</span><span class=w>      </span><span class=k>test-while-idle</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>      </span><span class=c>#既作为检测的间隔时间又作为testWhileIdel执行的依据</span><span class=w>
+</span><span class=w>      </span><span class=k>time-between-eviction-runs-millis</span><span class=p>:</span><span class=w> </span><span class=m>60000</span><span class=w>
+</span><span class=w>      </span><span class=c>#销毁线程时检测当前连接的最后活动时间和当前时间差大于该值时，关闭当前连接</span><span class=w>
+</span><span class=w>      </span><span class=k>min-evictable-idle-time-millis</span><span class=p>:</span><span class=w> </span><span class=m>30000</span><span class=w>
+</span><span class=w>      </span><span class=c>#用来检测连接是否有效的sql 必须是一个查询语句</span><span class=w>
+</span><span class=w>      </span><span class=c>#mysql中为 select &#39;x&#39;</span><span class=w>
+</span><span class=w>      </span><span class=c>#oracle中为 select 1 from dual</span><span class=w>
+</span><span class=w>      </span><span class=k>validation-query</span><span class=p>:</span><span class=w> </span>select<span class=w> </span><span class=s1>&#39;x&#39;</span><span class=w>
+</span><span class=w>      </span><span class=c>#申请连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true</span><span class=w>
+</span><span class=w>      </span><span class=k>test-on-borrow</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span><span class=w>      </span><span class=c>#归还连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true</span><span class=w>
+</span><span class=w>      </span><span class=k>test-on-return</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span><span class=w>      </span><span class=c>#是否缓存preparedStatement,mysql5.5+建议开启</span><span class=w>
+</span><span class=w>      </span><span class=k>pool-prepared-statements</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>      </span><span class=c>#当值大于0时poolPreparedStatements会自动修改为true</span><span class=w>
+</span><span class=w>      </span><span class=k>max-pool-prepared-statement-per-connection-size</span><span class=p>:</span><span class=w> </span><span class=m>20</span><span class=w>
+</span><span class=w>      </span><span class=c>#配置扩展插件</span><span class=w>
+</span><span class=w>      </span><span class=k>filters</span><span class=p>:</span><span class=w> </span>stat<span class=p>,</span>wall<span class=w>
+</span><span class=w>      </span><span class=c>#通过connectProperties属性来打开mergeSql功能；慢SQL记录</span><span class=w>
+</span><span class=w>      </span><span class=k>connection-properties</span><span class=p>:</span><span class=w> </span>druid.stat.mergeSql=<span class=kc>true</span>;druid.stat.slowSqlMillis=<span class=m>5000</span><span class=w>
+</span><span class=w>      </span><span class=c>#合并多个DruidDataSource的监控数据</span><span class=w>
+</span><span class=w>      </span><span class=k>use-global-data-source-stat</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>      </span><span class=c>#设置访问druid监控页的账号和密码,默认没有</span><span class=w>
+</span><span class=w>      </span><span class=k>stat-view-servlet</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>        </span><span class=k>login-username</span><span class=p>:</span><span class=w> </span>admin<span class=w>
+</span><span class=w>        </span><span class=k>login-password</span><span class=p>:</span><span class=w> </span>admin<span class=w>
+</span><span class=w>      </span><span class=c>#配置WebStatFilter</span><span class=w>
+</span><span class=w>      </span><span class=k>web-stat-filter</span><span class=p>:</span><span class=w>
+</span><span class=w>        </span><span class=k>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span><span class=w>        </span><span class=k>url-pattern</span><span class=p>:</span><span class=w> </span>/*<span class=w>
+</span><span class=w>        </span><span class=k>exclusions</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*&#34;</span><span class=w>
+</span></code></pre></td></tr></table></div></div><p>至此，基本的环境就搭建完成啦，接下来就是代码的编写了。</p><p>按照下图先把文件创建好</p><p><img src=5.png alt></p><p>然后编写 <code>User</code>,</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-kotlin data-lang=kotlin><span class=k>data</span> <span class=k>class</span> <span class=nc>User</span><span class=p>(</span><span class=k>var</span> <span class=py>id</span><span class=p>:</span> <span class=n>Long</span><span class=p>,</span>
+                <span class=k>var</span> <span class=py>name</span><span class=p>:</span> <span class=n>String</span><span class=p>,</span>
+                <span class=k>var</span> <span class=py>age</span><span class=p>:</span> <span class=n>Int</span><span class=p>,</span>
+                <span class=k>var</span> <span class=py>gender</span><span class=p>:</span> <span class=n>Int</span><span class=p>)</span>
+</code></pre></td></tr></table></div></div><p>接着编写 <code>UserMapper</code>,记得一定要加 <code>Mapper注解</code>，这样 Spring Boot 才能扫描到这个 Mapper。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-kotlin data-lang=kotlin><span class=n>@Mapper</span>
+<span class=k>interface</span> <span class=nc>UserMapper</span> <span class=p>{</span>
+
+    <span class=n>@Select</span><span class=p>(</span><span class=s>&#34;select * from user&#34;</span><span class=p>)</span>
+    <span class=k>fun</span> <span class=nf>getAllUsers</span><span class=p>():</span> <span class=n>MutableList</span><span class=p>&lt;</span><span class=n>User</span><span class=p>&gt;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>最后编写测试用的 <code>UserController</code>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-kotlin data-lang=kotlin><span class=n>@RestController</span>
+<span class=k>class</span> <span class=nc>UserController</span> <span class=p>{</span>
+
+    <span class=n>@Resource</span>
+    <span class=k>lateinit</span> <span class=k>var</span> <span class=py>userMapper</span><span class=p>:</span> <span class=n>UserMapper</span>
+
+    <span class=n>@GetMapping</span><span class=p>(</span><span class=s>&#34;getAllUser&#34;</span><span class=p>)</span>
+    <span class=k>fun</span> <span class=nf>getAllUsers</span><span class=p>():</span> <span class=n>MutableList</span><span class=p>&lt;</span><span class=n>User</span><span class=p>&gt;</span> <span class=p>{</span>
+        <span class=k>return</span> <span class=n>userMapper</span><span class=p>.</span><span class=n>getAllUsers</span><span class=p>()</span>
+    <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table></div></div><p>运行程序，访问 <a href=http://localhost:8000/getAllUser>http://localhost:8000/getAllUser</a> ,可以看到已经能成功访问到 mysql 里面的数据了,同时也可以打开 <a href=http://localhost:8000/druid>http://localhost:8000/druid</a> 查看 Druid 的监控页面。</p><p><img src=6.png alt></p><p>这样，一个简单的整合了 <code>mybatis</code> 的 Spring Boot 框架就搭建完毕了。</p></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hikari</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2019-08-13</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/tutorial/>Tutorial</a>
+<a href=/tags/springboot/>Springboot</a>
+<a href=/tags/kotlin/>Kotlin</a>
+<a href=/tags/mybatis/>Mybatis</a></div><nav class=post-nav><a class=prev href=/post/sort-01/><i class="iconfont icon-left"></i><span class="prev-text nav-default">SortAlgosKt(1) - 开个新坑吧，吧卟吧卟之冒泡排序</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/springboot-kt-101/><span class="next-text nav-default">基于Kotlin的Spring Boot项目搭建指北(一)</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><script src=https://utteranc.es/client.js repo=hikari-dev/blog-comments issue-term=pathname theme=github-light crossorigin=anonymous async></script><noscript>Please enable JavaScript to view the <a href=https://github.com/utterance>comments powered by utterances.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:zhiyoushangdicainengshenpanwo@gmail.com class="iconfont icon-email" title=email></a><a href=https://github.com/hikari-dev class="iconfont icon-github" title=github></a><a href=http://localhost:1313 class="iconfont icon-weibo" title=weibo></a><a href=http://localhost:1313/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span><div class=busuanzi-footer><span id=busuanzi_container_site_pv>本站总访问量 <span id=busuanzi_value_site_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次</span>
+<span class=division>|</span>
+<span id=busuanzi_container_site_uv>本站总访客数 <span id=busuanzi_value_site_uv><img src=/img/spinner.svg alt=spinner.svg></span> 人</span></div><span class=copyright-year>&copy;
+2018 -
+2020<span class=heart><i class="iconfont icon-heart"></i></span><span>hikari</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js></script></body></html>
