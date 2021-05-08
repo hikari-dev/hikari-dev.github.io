@@ -1,0 +1,116 @@
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Maven Central 发布指北 - hikari的博客</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hikari"><meta name=description content><meta name=generator content="Hugo 0.79.0 with theme even"><link rel=canonical href=https://hikari-dev.github.io/post/maven-central-publish/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><script async src=//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js></script><link href=/sass/main.min.9e5d323087de8eb33907c070ac81f2f9420e085bd4ad203ec20907e59407c330.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="Maven Central 发布指北"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="https://hikari-dev.github.io/post/maven-central-publish/"><meta property="article:published_time" content="2021-05-07T00:00:00+00:00"><meta property="article:modified_time" content="2021-05-07T00:00:00+00:00"><meta itemprop=name content="Maven Central 发布指北"><meta itemprop=description content><meta itemprop=datePublished content="2021-05-07T00:00:00+00:00"><meta itemprop=dateModified content="2021-05-07T00:00:00+00:00"><meta itemprop=wordCount content="659"><meta itemprop=keywords content="tutorial,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Maven Central 发布指北"><meta name=twitter:description content><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script><script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hikari的博客</a></div><div class=mobile-navbar-icon><span></span><span></span><span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/categories/><li class=mobile-menu-item>分类</li></a><a href=/about/><li class=mobile-menu-item>关于</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hikari的博客</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>Maven Central 发布指北</h1><div class=post-meta><span class=post-time>2021-05-07</span>
+<span id=busuanzi_container_page_pv class=more-meta><span id=busuanzi_value_page_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次阅读</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#使用gpg生成密钥对>使用GPG生成密钥对</a></li><li><a href=#申请发布资格>申请发布资格</a></li><li><a href=#使用gradle插件发布>使用Gradle插件发布</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=使用gpg生成密钥对>使用GPG生成密钥对</h2><p>在 <a href=https://www.gnupg.org/download/>GPG官网</a> 下载 binary releases 版本，安装后使用这个命令生成 key，</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>gpg --gen-key
+</code></pre></td></tr></table></div></div><p>接着按照命令行的提示一步一步选择成功后，密钥就已经生成了。</p><p>可以使用下面的命令查看生成的key。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>gpg --list-keys
+</code></pre></td></tr></table></div></div><p><img src=1.png alt></p><p>图中圈出来的后八位就是生成密钥的短 <strong>keyId</strong> ，当然，你也可以用整个 D22xxx386 作为完整的 <strong>KeyId</strong> 。然后运行下面的命令，</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>gpg --export-secret-keys <span class=o>[</span>keyId<span class=o>]</span> &gt; secring.gpg
+</code></pre></td></tr></table></div></div><p>就可以在 <code>C:\Users\Username\secring.gpg</code> 路径下找到刚刚导出的<strong>私钥</strong>（这个<strong>私钥</strong>在最后发布的时候会用到）。</p><p>最后，使用下面的命令将公钥发送到服务器上，你的密钥就可以正式使用了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>gpg --send-keys <span class=o>[</span>keyId<span class=o>]</span>
+</code></pre></td></tr></table></div></div><h2 id=申请发布资格>申请发布资格</h2><p><a href=#%E4%BD%BF%E7%94%A8Gradle%E6%8F%92%E4%BB%B6%E5%8F%91%E5%B8%83>已有发布资格</a></p><p><strong>Step 1:</strong> <a href=https://docs.github.com/en/github/getting-started-with-github/signing-up-for-a-new-github-account>创建 Github 账号</a>。</p><p><strong>Step 2:</strong> 在你的账号里<a href=https://docs.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account>添加 SSH key</a>。</p><p><strong>Step 3:</strong> 把你的项目发布到 Github 仓库。</p><p><strong>Step 4:</strong> <a href=https://issues.sonatype.org/secure/Signup!default.jspa>申请一个 Sonatype Jira账号</a>。</p><p><strong>Step 5:</strong> 为你打算发布的库<a href="https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&pid=10134">创建一个 Jira Issue</a>。 <a href=https://issues.sonatype.org/browse/OSSRH-24465>这里</a>有一个申请实例。</p><p>申请通过后，就可以开始准备把你的库发布到 Maven Central 了。</p><h2 id=使用gradle插件发布>使用Gradle插件发布</h2><p>在项目中集成 <a href=https://github.com/vanniktech/gradle-maven-publish-plugin>gradle-maven-publish-plugin</a> 。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-groovy data-lang=groovy><span class=n>buildscript</span> <span class=o>{</span>
+  <span class=n>repositories</span> <span class=o>{</span>
+    <span class=n>mavenCentral</span><span class=o>()</span>
+  <span class=o>}</span>
+  <span class=n>dependencies</span> <span class=o>{</span>
+    <span class=n>classpath</span> <span class=s1>&#39;com.vanniktech:gradle-maven-publish-plugin:0.15.1&#39;</span>
+  <span class=o>}</span>
+<span class=o>}</span>
+
+<span class=n>apply</span> <span class=nl>plugin:</span> <span class=s2>&#34;com.vanniktech.maven.publish&#34;</span>
+</code></pre></td></tr></table></div></div><p>由于现在新的申请通过后，都会让你发布到 <a href=https://s01.oss.sonatype.org/>s01.oss.sonatype.org</a>，所以还需要在 project 层的 <code>build.gradle</code> 里添加如下代码来指定发布到 S01 服务器：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-groovy data-lang=groovy><span class=n>allprojects</span> <span class=o>{</span>
+    <span class=n>plugins</span><span class=o>.</span><span class=na>withId</span><span class=o>(</span><span class=s2>&#34;com.vanniktech.maven.publish&#34;</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>mavenPublish</span> <span class=o>{</span>
+            <span class=n>sonatypeHost</span> <span class=o>=</span> <span class=s2>&#34;S01&#34;</span>
+        <span class=o>}</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>在项目的 <code>gradle.properties</code> 文件里添加一些配置（也可以参考<a href=https://github.com/hikari-dev/PaintView/blob/master/gradle.properties>我的配置</a> ）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-groovy data-lang=groovy><span class=n>GROUP</span><span class=o>=</span><span class=n>com</span><span class=o>.</span><span class=na>test</span><span class=o>.</span><span class=na>mylibrary</span>
+<span class=n>POM_ARTIFACT_ID</span><span class=o>=</span><span class=n>mylibrary</span><span class=o>-</span><span class=n>runtime</span>
+<span class=n>VERSION_NAME</span><span class=o>=</span><span class=mf>3.0</span><span class=o>.</span><span class=mi>5</span>
+
+<span class=n>POM_NAME</span><span class=o>=</span><span class=n>My</span> <span class=n>Library</span>
+<span class=n>POM_DESCRIPTION</span><span class=o>=</span><span class=n>A</span> <span class=n>description</span> <span class=n>of</span> <span class=n>what</span> <span class=n>my</span> <span class=n>library</span> <span class=n>does</span><span class=o>.</span>
+<span class=n>POM_INCEPTION_YEAR</span><span class=o>=</span><span class=mi>2020</span>
+<span class=n>POM_URL</span><span class=o>=</span><span class=nl>https:</span><span class=c1>//github.com/username/mylibrary/
+</span><span class=c1></span>
+<span class=n>POM_LICENCE_NAME</span><span class=o>=</span><span class=n>The</span> <span class=n>Apache</span> <span class=n>Software</span> <span class=n>License</span><span class=o>,</span> <span class=n>Version</span> <span class=mf>2.0</span>
+<span class=n>POM_LICENCE_URL</span><span class=o>=</span><span class=nl>https:</span><span class=c1>//www.apache.org/licenses/LICENSE-2.0.txt
+</span><span class=c1></span><span class=n>POM_LICENCE_DIST</span><span class=o>=</span><span class=n>repo</span>
+
+<span class=n>POM_SCM_URL</span><span class=o>=</span><span class=nl>https:</span><span class=c1>//github.com/username/mylibrary/
+</span><span class=c1></span><span class=n>POM_SCM_CONNECTION</span><span class=o>=</span><span class=nl>scm:git:git:</span><span class=c1>//github.com/username/mylibrary.git
+</span><span class=c1></span><span class=n>POM_SCM_DEV_CONNECTION</span><span class=o>=</span><span class=nl>scm:git:ssh:</span><span class=c1>//git@github.com/username/mylibrary.git
+</span><span class=c1></span>
+<span class=n>POM_DEVELOPER_ID</span><span class=o>=</span><span class=n>username</span>
+<span class=n>POM_DEVELOPER_NAME</span><span class=o>=</span><span class=n>User</span> <span class=n>Name</span>
+<span class=n>POM_DEVELOPER_URL</span><span class=o>=</span><span class=nl>https:</span><span class=c1>//github.com/username/
+</span></code></pre></td></tr></table></div></div><p>在全局的 gradle 配置文件里 （一般在 <code>C:\\Users\\Username\\.gradle\\gradle.properties</code> ) 添加 Sonatype 的账号和 GPG 私钥：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-groovy data-lang=groovy><span class=n>mavenCentralUsername</span><span class=o>=</span><span class=n>username</span>
+<span class=n>mavenCentralPassword</span><span class=o>=</span><span class=n>password</span>
+
+<span class=n>signing</span><span class=o>.</span><span class=na>keyId</span><span class=o>=</span><span class=n>keyId</span> <span class=err>#</span> <span class=err>用</span><span class=n>gpg生成的密钥的keyId</span>
+<span class=n>signing</span><span class=o>.</span><span class=na>password</span><span class=o>=</span><span class=n>password</span> <span class=err>#</span> <span class=err>用</span><span class=n>gpg生成密钥时设置的passphrase</span>
+<span class=n>signing</span><span class=o>.</span><span class=na>secretKeyRingFile</span><span class=o>=</span><span class=n>C</span><span class=err>\</span><span class=o>:</span><span class=err>\\</span><span class=n>Users</span><span class=err>\\</span><span class=n>Username</span><span class=err>\\</span><span class=n>secring</span><span class=o>.</span><span class=na>gpg</span>
+</code></pre></td></tr></table></div></div><p>配置完毕后，在工程根目录使用如下命令，即可将项目发布到 Maven Central 仓库：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-shell data-lang=shell>.<span class=se>\g</span>radlew publish --no-daemon --no-parallel
+.<span class=se>\g</span>radlew closeAndReleaseRepository
+</code></pre></td></tr></table></div></div></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hikari</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2021-05-07</span></p><p class=copyright-item><span class=item-title>许可协议</span>
+<span class=item-content><a rel="license noopener" href=https://creativecommons.org/licenses/by-nc-nd/4.0/ target=_blank>CC BY-NC-ND 4.0</a></span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/tutorial/>tutorial</a></div><nav class=post-nav><a class=next href=/post/renamer-compose/><span class="next-text nav-default">Compose for Desktop 初体验</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div class=comments><div class="loading post"><img src=/img/spinner.svg><p class=post-content>评论正在加载中...如果评论较长时间无法加载，你可以
+<a href='https://github.com/hikari-dev/blog-comments/issues?q=is%3Aissue+is%3Aopen+"Maven%20Central%20%e5%8f%91%e5%b8%83%e6%8c%87%e5%8c%97 - hikari%e7%9a%84%e5%8d%9a%e5%ae%a2"' target=_blank>搜索对应的 issue</a>
+或者
+<a href="https://github.com/hikari-dev/blog-comments/issues/new?title=Maven%20Central%20%e5%8f%91%e5%b8%83%e6%8c%87%e5%8c%97 - hikari%e7%9a%84%e5%8d%9a%e5%ae%a2" target=_blank>新建一个 issue</a>
+。</p></div><script src=https://utteranc.es/client.js repo=hikari-dev/blog-comments issue-term=title theme=github-light crossorigin=anonymous async></script><noscript>请启用 JavaScript 来查看评论。</a></noscript></div></div></main><footer id=footer class=footer><div class=social-links><a href=mailto:zhiyoushangdicainengshenpanwo@gmail.com class="iconfont icon-email" title=email></a><a href=https://github.com/hikari-dev class="iconfont icon-github" title=github></a><a href=https://hikari-dev.github.io/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
+<span class=division>|</span>
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span><div class=busuanzi-footer><span id=busuanzi_container_site_pv>本站总访问量 <span id=busuanzi_value_site_pv><img src=/img/spinner.svg alt=spinner.svg></span> 次</span>
+<span class=division>|</span>
+<span id=busuanzi_container_site_uv>本站总访客数 <span id=busuanzi_value_site_uv><img src=/img/spinner.svg alt=spinner.svg></span> 人</span></div><span class=copyright-year>&copy;
+2018 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hikari</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script><script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script><script type=text/javascript src=/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js></script><script type=text/javascript>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],}};</script><script async src=https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin=anonymous></script></body></html>
